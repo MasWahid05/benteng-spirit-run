@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Masuk Panitia — Benteng Spirit Run</title>
+<meta name="description" content="Masuk ke panel panitia Sistem Perlombaan Atletik Benteng Spirit Run — PASI Kota Tangerang.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f6b3a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f6b3a'/%3E%3Cpath d='M7 22h4l3-9 4 11 3-7h4' fill='none' stroke='%23f5c400' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css?v=9">
+<style>
+  body{background:var(--bg)}
+  .wrapL{min-height:100dvh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+  .art{position:relative;overflow:hidden;background:linear-gradient(155deg,#0f6b3a 0%,#0a4d2a 70%,#083d21 100%);color:#fff;padding:clamp(28px,5vw,64px);display:flex;flex-direction:column;justify-content:space-between;isolation:isolate}
+  .art::before{content:"";position:absolute;inset:auto -20% -18% -20%;height:62%;background:repeating-linear-gradient(0deg,transparent 0 46px,rgb(255 255 255/.16) 46px 49px);transform:perspective(600px) rotateX(58deg);transform-origin:bottom;z-index:-1}
+  .art::after{content:"";position:absolute;width:520px;height:520px;right:-160px;top:-160px;border-radius:50%;background:radial-gradient(closest-side,rgb(245 196 0/.35),transparent);z-index:-1}
+  .art .lg{display:flex;align-items:center;gap:12px;font-weight:800}
+  .art .lg span{width:44px;height:44px;border-radius:12px;background:rgb(255 255 255/.12);border:1px solid rgb(255 255 255/.2);display:grid;place-items:center}
+  .art .lg svg{width:24px;height:24px;color:var(--accent)}
+  .art h1{color:#fff;font-size:clamp(2rem,3.4vw + .6rem,3.4rem);line-height:1.05;margin:0 0 14px;max-width:14ch}
+  .art h1 em{font-style:normal;color:var(--accent)}
+  .art p{color:rgb(255 255 255/.82);max-width:44ch;margin:0}
+  .pts{list-style:none;padding:0;margin:26px 0 0;display:grid;gap:12px}
+  .pts li{display:flex;gap:12px;align-items:flex-start;font-weight:600}
+  .pts li b{flex:none;width:28px;height:28px;border-radius:8px;background:var(--accent);color:#1d1800;display:grid;place-items:center;font-size:.8rem}
+  .foot-art{font-size:.8rem;color:rgb(255 255 255/.6)}
+  .formside{display:grid;place-items:center;padding:clamp(20px,5vw,56px)}
+  .box{width:min(420px,100%)}
+  .box h2{font-size:1.6rem;margin-bottom:6px}
+  .pinwrap{position:relative}
+  .pinwrap .input{min-height:54px;font-size:1.25rem;letter-spacing:.35em;padding-right:52px}
+  .pinwrap button{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:42px;height:42px;border:0;background:none;border-radius:8px;cursor:pointer;color:var(--muted)}
+  .pinwrap button:hover{background:var(--surface-2)}
+  .pinwrap svg{width:20px;height:20px}
+  .msg{margin:12px 0;font-size:.88rem}
+  .alt{display:grid;gap:8px;margin-top:18px}
+  .sep{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.78rem;margin:20px 0 12px}
+  .sep::before,.sep::after{content:"";flex:1;height:1px;background:var(--line)}
+  details{margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--surface)}
+  summary{cursor:pointer;font-weight:700;font-size:.85rem}
+  @media (max-width:860px){.wrapL{grid-template-columns:1fr}.art{min-height:auto;padding-bottom:36px}.art h1{font-size:2rem}.pts{display:none}.foot-art{display:none}}
+</style>
+</head>
+<body>
+<div class="wrapL">
+  <aside class="art" aria-label="Tentang sistem">
+    <a class="lg" href="index.html" style="color:#fff;text-decoration:none"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h3l3-7 4 9 3-6h3"/></svg></span>Benteng Spirit Run</a>
+    <div>
+      <h1>Satu panel untuk <em>seluruh lomba.</em></h1>
+      <p>Pendaftaran, validasi bayar, nomor dada, seri, catatan waktu, sampai podium — tersambung langsung ke Google Spreadsheet panitia.</p>
+      <ul class="pts">
+        <li><b>1</b>Validasi pembayaran sekali klik, nomor dada keluar otomatis</li>
+        <li><b>2</b>Seri 6 lintasan, final 8 terbaik, podium & klasemen medali</li>
+        <li><b>3</b>Ekspor Excel & PDF berkop PASI, siap cetak</li>
+      </ul>
+    </div>
+    <div class="foot-art">Pengurus Cabang PASI Kota Tangerang</div>
+  </aside>
+
+  <main class="formside">
+    <div class="box">
+      <h2>Masuk panel panitia</h2>
+      <p class="muted" style="margin:0">Masukkan PIN panitia untuk mengelola data lomba.</p>
+      <div id="msg"></div>
+      <form id="f" style="margin-top:18px">
+        <label class="field"><span>PIN panitia</span>
+          <div class="pinwrap"><input class="input" id="pin" type="password" inputmode="numeric" autocomplete="current-password" required minlength="4" aria-describedby="pinhelp">
+          <button type="button" id="lihat" aria-label="Tampilkan PIN"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+          <small class="muted" id="pinhelp">Pertama kali dipakai? PIN yang Anda ketik akan menjadi PIN panitia.</small>
+        </label>
+        <button class="btn btn-brand" id="masuk" style="width:100%;min-height:50px;font-size:1rem">Masuk</button>
+      </form>
+      <div class="sep">atau</div>
+      <div class="alt">
+        <a class="btn" href="panel.html?demo=1">Coba mode demo (data contoh)</a>
+        <a class="btn btn-ghost" href="daftar.html">Halaman pendaftaran atlet →</a>
+      </div>
+      <details id="adv"><summary>Pengaturan koneksi (untuk admin)</summary>
+        <label class="field" style="margin-top:10px"><span>Alamat mesin Apps Script (URL /exec)</span><input class="input" id="api" placeholder="https://script.google.com/macros/s/…/exec"></label>
+        <div class="toolbar"><button class="btn btn-sm" id="simpan-api" type="button">Simpan di perangkat ini</button><button class="btn btn-sm btn-ghost" id="reset-api" type="button">Pakai bawaan</button></div>
+        <p class="small muted" style="margin:10px 0 0">Lupa PIN? Admin dapat menggantinya di Apps Script → Setelan project → Properti skrip <code>ADMIN_PIN</code>.</p>
+      </details>
+    </div>
+  </main>
+</div>
+<div id="loading" class="loading hidden" role="alert"><div style="text-align:center"><div class="spinner" style="margin:auto"></div><p id="loading-msg">Memeriksa PIN…</p></div></div>
+
+<script src="assets/config.js?v=9"></script>
+<script src="assets/api.js?v=9"></script>
+<script>
+(function () {
+  const $ = s => document.querySelector(s);
+  const q = new URLSearchParams(location.search);
+  const note = (t, cls) => { $('#msg').innerHTML = '<p class="note ' + (cls || '') + ' msg"></p>'; $('#msg p').textContent = t; };
+  if (q.get('keluar')) note('Anda sudah keluar dari panel.');
+  if (q.get('pesan')) note(q.get('pesan'), 'warn');
+  BSR.setDemo(false);
+  if (BSR.token() && !q.get('pesan') && !q.get('keluar')) { location.replace('panel.html'); return; }
+  if (!BSR.apiUrl()) { $('#adv').open = true; note('Alamat mesin belum diatur. Isi di "Pengaturan koneksi" di bawah.', 'warn'); }
+  $('#api').value = BSR.apiUrl();
+  $('#lihat').onclick = () => { const i = $('#pin'); i.type = i.type === 'password' ? 'text' : 'password'; $('#lihat').setAttribute('aria-label', i.type === 'password' ? 'Tampilkan PIN' : 'Sembunyikan PIN'); };
+  $('#simpan-api').onclick = () => { BSR.setApiUrl($('#api').value); note('Alamat mesin disimpan di perangkat ini.'); };
+  $('#reset-api').onclick = () => { BSR.setApiUrl(null); $('#api').value = BSR.apiUrl(); note('Memakai alamat mesin bawaan.'); };
+  $('#f').onsubmit = async e => {
+    e.preventDefault();
+    const pin = $('#pin').value.trim();
+    if (pin.length < 4) { note('PIN minimal 4 karakter.', 'warn'); return; }
+    $('#loading').classList.remove('hidden');
+    try {
+      const r = await BSR.call('login', { pin });
+      BSR.setToken(r.token);
+      location.replace('panel.html' + (r.pinBaru ? '?pinbaru=1' : ''));
+    } catch (err) {
+      note(err.message, 'warn'); $('#pin').select();
+    } finally { $('#loading').classList.add('hidden'); }
+  };
+  $('#pin').focus();
+})();
+</script>
+</body>
+</html>

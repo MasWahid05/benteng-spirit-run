@@ -291,7 +291,7 @@
       kpi('Menunggu validasi', angka(st.pending), 'dari ' + angka(st.total) + ' data masuk', st.pending ? 'warn' : '') +
       kpi('Multi-kategori', angka(st.multi), 'atlet ikut > 1 lomba') +
       kpi('Tim estafet', angka(st.tim), angka(st.timValid) + ' tervalidasi') +
-      kpi('Estimasi dana masuk', rp(st.dana), rp(S.set.biaya) + ' × slot valid') +
+      kpi('Estimasi dana masuk', rp(st.dana).replace(' ', ' '), rp(S.set.biaya) + ' × slot valid', 'sm') +
       '</div>' +
       '<div class="cols-2-1"><div class="card"><div class="card-head"><h2>Peserta per kategori</h2><span class="muted small">≈ ' + seriTotal + ' seri penyisihan (' + L + ' lintasan)</span></div>' +
       '<div class="legend"><span><i style="background:var(--brand)"></i>Putra</span><span><i style="background:var(--accent)"></i>Putri</span></div><div class="bars">' +
@@ -1010,35 +1010,16 @@
     r.dataset.theme = gelap ? 'light' : 'dark';
     BSR.ls.set('bsr_tema', r.dataset.theme);
   }
-  function keluar() { BSR.setToken(null); BSR.setDemo(false); location.hash = ''; location.reload(); }
+  function keluar() { BSR.setToken(null); BSR.setDemo(false); location.replace('login.html?keluar=1'); }
   BSR.onSessionEnd = () => { tampilLogin('Sesi panitia habis. Masukkan PIN lagi.'); };
 
+  // Layar masuk ada di halaman terpisah: login.html
   function tampilLogin(pesan) {
-    $('#app').classList.add('hidden');
-    const L = $('#login'); L.classList.remove('hidden');
-    const ada = !!BSR.apiUrl();
-    L.innerHTML = '<div class="login-card"><div class="brand"><div class="brand-mark">' + ic('relay') + '</div><div><b>Sistem Perlombaan Atletik</b><span>Benteng Spirit Run • PASI Kota Tangerang</span></div></div><div class="track-art" aria-hidden="true"></div>' +
-      '<h1 style="font-size:1.35rem">Masuk panel panitia</h1><p class="muted">Kelola pendaftar, validasi bayar, seri, waktu, podium, dan ekspor — langsung dari spreadsheet.</p>' +
-      (pesan ? '<p class="note warn small">' + esc(pesan) + '</p>' : '') +
-      '<form id="flogin">' + (ada ? '' : '<label class="field"><span>Alamat mesin Apps Script (URL /exec)</span><input class="input" name="api" placeholder="https://script.google.com/macros/s/…/exec" required></label>') +
-      '<label class="field"><span>PIN panitia <span class="muted" style="font-weight:500">(pertama kali: PIN yang diketik menjadi PIN panitia)</span></span><input class="input" name="pin" type="password" inputmode="numeric" autocomplete="current-password" required></label>' +
-      '<button class="btn btn-brand" style="width:100%;min-height:46px">Masuk</button></form>' +
-      '<div class="toolbar" style="justify-content:space-between;margin-top:14px"><button class="btn btn-ghost btn-sm" id="demo">Coba mode demo</button>' + (ada ? '<button class="btn btn-ghost btn-sm" id="ganti-api">Ganti alamat mesin</button>' : '') + '<a class="btn btn-ghost btn-sm" href="daftar.html">Halaman pendaftaran →</a></div>' +
-      (ada ? '' : '<details style="margin-top:14px"><summary class="small" style="cursor:pointer;font-weight:700">Cara mendapatkan alamat mesin</summary><ol class="steps small" style="margin-top:10px"><li>Buka spreadsheet → <b>Ekstensi → Apps Script</b>.</li><li>Tambah file skrip baru <b>AplikasiWeb</b>, tempel isi <code>apps-script/Code.gs</code>, simpan.</li><li>Jalankan fungsi <b>setupAplikasiWeb</b> sekali & izinkan akses.</li><li><b>Terapkan → Deployment baru → Aplikasi web</b>, jalankan sebagai <i>Saya</i>, akses <i>Siapa saja</i>.</li><li>Salin URL berakhiran <code>/exec</code> ke kolom di atas.</li></ol></details>') + '</div>';
-    $('#flogin').onsubmit = async e => {
-      e.preventDefault();
-      const f = e.target;
-      if (f.api) BSR.setApiUrl(f.api.value);
-      BSR.setDemo(false);
-      const r = await act('Memeriksa PIN…', () => BSR.call('login', { pin: f.pin.value }));
-      if (r) { BSR.setToken(r.token); if (r.pinBaru) toast('PIN panitia baru tersimpan. Bagikan hanya ke panitia.', 'ok'); mulai(); }
-    };
-    $('#demo').onclick = () => { BSR.setDemo(true); BSR.setToken('demo'); mulai(); };
-    const g = $('#ganti-api'); if (g) g.onclick = () => { BSR.setApiUrl(null); tampilLogin(); };
+    location.replace('login.html' + (pesan ? '?pesan=' + encodeURIComponent(pesan) : ''));
   }
 
   async function mulai() {
-    $('#login').classList.add('hidden');
+    const lg = $('#login'); if (lg) lg.classList.add('hidden');
     $('#app').classList.remove('hidden');
     if (await muat()) render();
     else if (!BSR.demo) tampilLogin('Gagal memuat data. Periksa alamat mesin & PIN.');
@@ -1068,5 +1049,7 @@
   // mulai
   const t = BSR.ls.get('bsr_tema'); if (t) document.documentElement.dataset.theme = t;
   shell();
+  if (/[?&]demo=1/.test(location.search)) { BSR.setDemo(true); BSR.setToken('demo'); }
+  if (/[?&]pinbaru=1/.test(location.search)) setTimeout(() => toast('PIN panitia baru tersimpan. Bagikan hanya ke panitia.', 'ok'), 800);
   if (BSR.token() || BSR.demo) mulai(); else tampilLogin();
 })();

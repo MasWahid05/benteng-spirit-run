@@ -20,6 +20,6 @@ Tab baru: `APP_PENGATURAN`, `APP_ESTAFET`, `APP_SERI`, `APP_LOG`, dan tab jawaba
 Bukti bayar dari web disimpan di folder Drive **Bukti Pembayaran - (nama acara)**.
 
 ## Halaman
-- `index.html` — panel panitia (PIN): dasbor, pendaftar & validasi, rekap, cek duplikasi, data baju, estafet,
+- `index.html` — halaman promosi · `login.html` — masuk panitia · `panel.html` — panel panitia (PIN): dasbor, pendaftar & validasi, rekap, cek duplikasi, data baju, estafet,
   nomor dada & race pack, seri & waktu, final, podium, Google Form, pengaturan. Ekspor Excel & PDF di tiap menu.
 - `daftar.html` — pendaftaran publik: perorangan, kolektif (klub/sekolah), dan tim estafet.
