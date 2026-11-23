@@ -181,7 +181,15 @@ function log_(aksi, ket) {
   try { sheet_(APP.log, ['Waktu', 'Aksi', 'Keterangan']).appendRow([new Date(), aksi, ket]); } catch (e) { }
 }
 
-function tz_() { return ss_().getSpreadsheetTimeZone(); }
+let TZ_ = null;
+function tz_() {
+  if (TZ_) return TZ_;
+  let t = '';
+  try { t = ss_().getSpreadsheetTimeZone(); } catch (e) { }
+  if (!t) { try { t = Session.getScriptTimeZone(); } catch (e) { } }
+  TZ_ = t || 'Asia/Jakarta';
+  return TZ_;
+}
 
 function tgl_(v) {
   if (v instanceof Date) return Utilities.formatDate(v, tz_(), 'yyyy-MM-dd');
