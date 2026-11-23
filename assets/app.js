@@ -1014,17 +1014,17 @@
       '<h1 style="font-size:1.35rem">Masuk panel panitia</h1><p class="muted">Kelola pendaftar, validasi bayar, seri, waktu, podium, dan ekspor — langsung dari spreadsheet.</p>' +
       (pesan ? '<p class="note warn small">' + esc(pesan) + '</p>' : '') +
       '<form id="flogin">' + (ada ? '' : '<label class="field"><span>Alamat mesin Apps Script (URL /exec)</span><input class="input" name="api" placeholder="https://script.google.com/macros/s/…/exec" required></label>') +
-      '<label class="field"><span>PIN panitia</span><input class="input" name="pin" type="password" inputmode="numeric" autocomplete="current-password" required></label>' +
+      '<label class="field"><span>PIN panitia <span class="muted" style="font-weight:500">(pertama kali: PIN yang diketik menjadi PIN panitia)</span></span><input class="input" name="pin" type="password" inputmode="numeric" autocomplete="current-password" required></label>' +
       '<button class="btn btn-brand" style="width:100%;min-height:46px">Masuk</button></form>' +
       '<div class="toolbar" style="justify-content:space-between;margin-top:14px"><button class="btn btn-ghost btn-sm" id="demo">Coba mode demo</button>' + (ada ? '<button class="btn btn-ghost btn-sm" id="ganti-api">Ganti alamat mesin</button>' : '') + '<a class="btn btn-ghost btn-sm" href="daftar.html">Halaman pendaftaran →</a></div>' +
-      (ada ? '' : '<details style="margin-top:14px"><summary class="small" style="cursor:pointer;font-weight:700">Cara mendapatkan alamat mesin</summary><ol class="steps small" style="margin-top:10px"><li>Buka spreadsheet → <b>Ekstensi → Apps Script</b>.</li><li>Tambah file skrip baru <b>AplikasiWeb</b>, tempel isi <code>apps-script/Code.gs</code>, ganti <code>PIN_AWAL</code>, simpan.</li><li>Jalankan fungsi <b>setupAplikasiWeb</b> sekali & izinkan akses.</li><li><b>Terapkan → Deployment baru → Aplikasi web</b>, jalankan sebagai <i>Saya</i>, akses <i>Siapa saja</i>.</li><li>Salin URL berakhiran <code>/exec</code> ke kolom di atas.</li></ol></details>') + '</div>';
+      (ada ? '' : '<details style="margin-top:14px"><summary class="small" style="cursor:pointer;font-weight:700">Cara mendapatkan alamat mesin</summary><ol class="steps small" style="margin-top:10px"><li>Buka spreadsheet → <b>Ekstensi → Apps Script</b>.</li><li>Tambah file skrip baru <b>AplikasiWeb</b>, tempel isi <code>apps-script/Code.gs</code>, simpan.</li><li>Jalankan fungsi <b>setupAplikasiWeb</b> sekali & izinkan akses.</li><li><b>Terapkan → Deployment baru → Aplikasi web</b>, jalankan sebagai <i>Saya</i>, akses <i>Siapa saja</i>.</li><li>Salin URL berakhiran <code>/exec</code> ke kolom di atas.</li></ol></details>') + '</div>';
     $('#flogin').onsubmit = async e => {
       e.preventDefault();
       const f = e.target;
       if (f.api) BSR.setApiUrl(f.api.value);
       BSR.setDemo(false);
       const r = await act('Memeriksa PIN…', () => BSR.call('login', { pin: f.pin.value }));
-      if (r) { BSR.setToken(r.token); mulai(); }
+      if (r) { BSR.setToken(r.token); if (r.pinBaru) toast('PIN panitia baru tersimpan. Bagikan hanya ke panitia.', 'ok'); mulai(); }
     };
     $('#demo').onclick = () => { BSR.setDemo(true); BSR.setToken('demo'); mulai(); };
     const g = $('#ganti-api'); if (g) g.onclick = () => { BSR.setApiUrl(null); tampilLogin(); };

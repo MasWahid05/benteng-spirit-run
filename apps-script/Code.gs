@@ -4,16 +4,17 @@
  *
  * CARA PASANG (sekali saja):
  * 1. Buka spreadsheet → menu Ekstensi → Apps Script.
- * 2. Hapus isi Code.gs, tempel seluruh file ini, simpan.
- * 3. Ganti PIN_AWAL di bawah dengan PIN panitia pilihan Bos.
- * 4. Pilih fungsi "setupAplikasiWeb" lalu klik Jalankan (izinkan akses yang diminta).
+ * 2. Klik + → Skrip, beri nama AplikasiWeb, tempel seluruh file ini, simpan.
+ * 3. Pilih fungsi "setupAplikasiWeb" lalu klik Jalankan (izinkan akses yang diminta).
+ * 4. PIN panitia: PIN pertama yang diketik di layar masuk web otomatis menjadi PIN panitia
+ *    (atau isi PIN_AWAL di bawah sebelum menjalankan setup).
  * 5. Terapkan → Deployment baru → Jenis: Aplikasi web
  *      - Jalankan sebagai: Saya
  *      - Yang memiliki akses: Siapa saja
  *    Salin URL yang berakhiran /exec lalu tempel di web (menu Pengaturan) atau beri ke Karyawan AI.
  */
 
-const PIN_AWAL = 'GANTI-PIN-INI';          // ← ganti sebelum menjalankan setupAplikasiWeb()
+const PIN_AWAL = '';  // opsional; kosongkan agar PIN dibuat dari layar masuk web
 const SHEET_DAFTAR = 'Form Responses 1';
 const SHEET_REF = 'REFERENSI NOMOR DADA';
 const SHEET_ESTAFET_LAMA = 'ESTAFET';
@@ -59,8 +60,7 @@ function json_(o) {
 /*  SETUP                                                              */
 /* ------------------------------------------------------------------ */
 function setupAplikasiWeb() {
-  if (!PIN_AWAL || PIN_AWAL === 'GANTI-PIN-INI') throw new Error('Ganti dulu PIN_AWAL di baris atas file ini.');
-  PropertiesService.getScriptProperties().setProperty('ADMIN_PIN', String(PIN_AWAL));
+  if (PIN_AWAL && String(PIN_AWAL).length >= 4) PropertiesService.getScriptProperties().setProperty('ADMIN_PIN', String(PIN_AWAL));
   const ss = ss_();
   PropertiesService.getScriptProperties().setProperty('SS_ID', ss.getId());
   sheet_(APP.set, ['Kunci', 'Nilai (JSON)']);
@@ -125,15 +125,24 @@ function login_(d) {
   const gagal = Number(cache.get('gagal') || 0);
   if (gagal >= 15) throw new Error('Terlalu banyak percobaan PIN. Coba lagi 10 menit lagi.');
   const pin = PropertiesService.getScriptProperties().getProperty('ADMIN_PIN');
-  if (!pin) throw new Error('PIN belum diatur. Jalankan fungsi setupAplikasiWeb() di editor Apps Script.');
-  if (String(d.pin || '') !== pin) {
+  let baru = false;
+  if (!pin) {
+    // PIN pertama yang diketik panitia menjadi PIN resmi
+    const p = String(d.pin || '');
+    if (p.length < 4) throw new Error('PIN panitia belum dibuat. Ketik PIN baru minimal 4 karakter.');
+    const l = kunci_();
+    try {
+      if (!PropertiesService.getScriptProperties().getProperty('ADMIN_PIN')) PropertiesService.getScriptProperties().setProperty('ADMIN_PIN', p);
+    } finally { l.releaseLock(); }
+    baru = true;
+  } else if (String(d.pin || '') !== pin) {
     cache.put('gagal', String(gagal + 1), 600);
     throw new Error('PIN salah.');
   }
   const token = Utilities.getUuid();
   cache.put('t_' + token, '1', 21600);
-  log_('login', 'Panitia masuk');
-  return { token: token };
+  log_('login', baru ? 'PIN panitia dibuat' : 'Panitia masuk');
+  return { token: token, pinBaru: baru };
 }
 
 function cekToken_(token) {
