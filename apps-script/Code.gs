@@ -6,14 +6,14 @@
  * 1. Buka spreadsheet → menu Ekstensi → Apps Script.
  * 2. Hapus isi Code.gs, tempel seluruh file ini, simpan.
  * 3. Ganti PIN_AWAL di bawah dengan PIN panitia pilihan Bos.
- * 4. Pilih fungsi "setup" lalu klik Jalankan (izinkan akses yang diminta).
+ * 4. Pilih fungsi "setupAplikasiWeb" lalu klik Jalankan (izinkan akses yang diminta).
  * 5. Terapkan → Deployment baru → Jenis: Aplikasi web
  *      - Jalankan sebagai: Saya
  *      - Yang memiliki akses: Siapa saja
  *    Salin URL yang berakhiran /exec lalu tempel di web (menu Pengaturan) atau beri ke Karyawan AI.
  */
 
-const PIN_AWAL = 'GANTI-PIN-INI';          // ← ganti sebelum menjalankan setup()
+const PIN_AWAL = 'GANTI-PIN-INI';          // ← ganti sebelum menjalankan setupAplikasiWeb()
 const SHEET_DAFTAR = 'Form Responses 1';
 const SHEET_REF = 'REFERENSI NOMOR DADA';
 const SHEET_ESTAFET_LAMA = 'ESTAFET';
@@ -58,7 +58,7 @@ function json_(o) {
 /* ------------------------------------------------------------------ */
 /*  SETUP                                                              */
 /* ------------------------------------------------------------------ */
-function setup() {
+function setupAplikasiWeb() {
   if (!PIN_AWAL || PIN_AWAL === 'GANTI-PIN-INI') throw new Error('Ganti dulu PIN_AWAL di baris atas file ini.');
   PropertiesService.getScriptProperties().setProperty('ADMIN_PIN', String(PIN_AWAL));
   const ss = ss_();
@@ -125,7 +125,7 @@ function login_(d) {
   const gagal = Number(cache.get('gagal') || 0);
   if (gagal >= 15) throw new Error('Terlalu banyak percobaan PIN. Coba lagi 10 menit lagi.');
   const pin = PropertiesService.getScriptProperties().getProperty('ADMIN_PIN');
-  if (!pin) throw new Error('PIN belum diatur. Jalankan fungsi setup() di editor Apps Script.');
+  if (!pin) throw new Error('PIN belum diatur. Jalankan fungsi setupAplikasiWeb() di editor Apps Script.');
   if (String(d.pin || '') !== pin) {
     cache.put('gagal', String(gagal + 1), 600);
     throw new Error('PIN salah.');
@@ -152,7 +152,7 @@ function ss_() {
   const aktif = SpreadsheetApp.getActiveSpreadsheet();
   if (aktif) return aktif;
   const id = PropertiesService.getScriptProperties().getProperty('SS_ID');
-  if (!id) throw new Error('Spreadsheet tidak dikenali. Jalankan setup() dari editor Apps Script spreadsheet lomba.');
+  if (!id) throw new Error('Spreadsheet tidak dikenali. Jalankan setupAplikasiWeb() dari editor Apps Script spreadsheet lomba.');
   return SpreadsheetApp.openById(id);
 }
 

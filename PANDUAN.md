@@ -4,9 +4,9 @@ Web panitia + halaman pendaftaran yang tersambung langsung ke Google Spreadsheet
 
 ## Pasang mesin Google (sekali saja, ±5 menit)
 1. Buka spreadsheet lomba → menu **Ekstensi → Apps Script**.
-2. Hapus isi `Code.gs`, tempel seluruh isi file [`apps-script/Code.gs`](apps-script/Code.gs), lalu **Simpan**.
+2. Klik **+ → Skrip**, beri nama **AplikasiWeb**, tempel seluruh isi file [`apps-script/Code.gs`](apps-script/Code.gs), lalu **Simpan**.
 3. Di baris atas, ganti `PIN_AWAL` dengan PIN panitia (min. 4 karakter).
-4. Pilih fungsi **setup** → **Jalankan** → izinkan akses (Spreadsheet, Drive, Form).
+4. Pilih fungsi **setupAplikasiWeb** → **Jalankan** → izinkan akses (Spreadsheet, Drive, Form).
 5. **Terapkan → Deployment baru → Aplikasi web**
    - Jalankan sebagai: **Saya**
    - Yang memiliki akses: **Siapa saja**
