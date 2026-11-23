@@ -18,6 +18,7 @@ const PIN_AWAL = '';  // opsional; kosongkan agar PIN dibuat dari layar masuk we
 const SHEET_DAFTAR = 'Form Responses 1';
 const SHEET_REF = 'REFERENSI NOMOR DADA';
 const SHEET_ESTAFET_LAMA = 'ESTAFET';
+const SHEET_BAJU = 'DATA BAJU ATLET';
 const APP = { set: 'APP_PENGATURAN', est: 'APP_ESTAFET', seri: 'APP_SERI', log: 'APP_LOG' };
 const KOLOM_SERI = ['Kategori', 'Jenis Kelamin', 'Babak', 'Seri', 'Lintasan', 'No. Dada', 'Nama', 'Klub', 'Waktu', 'Keterangan'];
 const KOLOM_EST = ['ID', 'Kategori', 'Nama Sekolah / Klub', 'Nama Tim', 'Pelari 1', 'Pelari 2', 'Pelari 3', 'Pelari 4', 'Cadangan',
@@ -100,7 +101,11 @@ const ADMIN = {
   tambah: d => { const p = pengaturan_(); return tulisPendaftar_(bersihkanAtlet_(d, p, false), ''); },
   ubah: d => ubahPendaftar_(d),
   hapus: d => hapusPendaftar_(d.id),
-  simpanPengaturan: d => { simpanPengaturan_(Object.assign(pengaturan_(), d)); return pengaturan_(); },
+  simpanPengaturan: d => {
+    if (d.baju_kloter1) tulisKloter_(d.baju_kloter1);
+    simpanPengaturan_(Object.assign(pengaturan_(), d));
+    return pengaturan_();
+  },
   gantiPin: d => {
     const pin = String(d.pin || '');
     if (pin.length < 4) throw new Error('PIN minimal 4 karakter.');
@@ -266,7 +271,56 @@ function pengaturan_() {
       try { p[r[0]] = JSON.parse(r[1]); } catch (e) { p[r[0]] = r[1]; }
     });
   }
+  const k = bacaKloter_();
+  if (k) p.baju_kloter1 = k;
   return p;
+}
+
+/* Kloter cetak baju: dibaca & ditulis langsung di tab DATA BAJU ATLET (kolom "KLOTER 1 (SUDAH DICETAK)") */
+function lokasiKloter_() {
+  const sh = ss_().getSheetByName(SHEET_BAJU);
+  if (!sh) return null;
+  const v = sh.getRange(1, 1, Math.min(sh.getLastRow(), 40), Math.min(sh.getLastColumn(), 26)).getDisplayValues();
+  for (let r = 0; r < v.length; r++) {
+    const c = v[r].findIndex(x => /KLOTER 1/i.test(x));
+    if (c < 0) continue;
+    const lbl = v[r].findIndex(x => /UKURAN/i.test(x));
+    if (lbl < 0) continue;
+    const baris = [];
+    for (let i = r + 1; i < v.length; i++) {
+      const u = String(v[i][lbl]).trim();
+      if (!u || /TOTAL/i.test(u)) break;
+      baris.push({ row: i + 1, ukuran: u.toUpperCase().replace(/\s+/g, ' ') });
+    }
+    return { sh: sh, col: c + 1, baris: baris };
+  }
+  return null;
+}
+
+let KLOTER_ = undefined;
+function bacaKloter_() {
+  if (KLOTER_ !== undefined) return KLOTER_;
+  KLOTER_ = null;
+  try {
+    const L = lokasiKloter_();
+    if (!L || !L.baris.length) return null;
+    const last = L.baris[L.baris.length - 1].row;
+    const col = L.sh.getRange(1, L.col, last, 1).getValues();
+    const out = {};
+    L.baris.forEach(b => { out[b.ukuran] = Number(col[b.row - 1][0]) || 0; });
+    KLOTER_ = out;
+  } catch (e) { }
+  return KLOTER_;
+}
+
+function tulisKloter_(map) {
+  const L = lokasiKloter_();
+  if (!L) return;
+  const m = {};
+  Object.keys(map).forEach(k => m[String(k).toUpperCase().replace(/\s+/g, ' ')] = Number(map[k]) || 0);
+  L.baris.forEach(b => L.sh.getRange(b.row, L.col).setValue(m[b.ukuran] || 0));
+  KLOTER_ = undefined;
+  log_('kloter', JSON.stringify(m));
 }
 
 function simpanPengaturan_(p) {

@@ -8,6 +8,8 @@
   const rp = n => 'Rp ' + Math.round(Number(n) || 0).toLocaleString('id-ID');
   const angka = n => (Number(n) || 0).toLocaleString('id-ID');
   const JK = ['Putra', 'Putri'];
+  // nomor dada selalu 3 digit: 1 → 001
+  const nd = n => (n == null || n === '') ? '' : (/^\d+$/.test(String(n)) ? String(n).padStart(3, '0') : String(n));
 
   /* ---------------- Ikon ---------------- */
   const P = {
@@ -174,12 +176,12 @@
     S.est.forEach(t => { t.kategori = (KATE[kunciKat(t.kategori)] || { nama: t.kategori }).nama; });
     hitungBadge();
   }
-  const bibHtml = r => r.bib != null ? '<span class="bib ' + esc(r.warna) + '">' + r.bib + '</span>' : '<span class="bib none" title="' + (r.valid ? 'Duplikat kategori / belum ada nomor' : 'Belum divalidasi') + '">—</span>';
+  const bibHtml = r => r.bib != null ? '<span class="bib ' + esc(r.warna) + '">' + nd(r.bib) + '</span>' : '<span class="bib none" title="' + (r.valid ? 'Duplikat kategori / belum ada nomor' : 'Belum divalidasi') + '">—</span>';
   // atlet unik tervalidasi per kategori & jk
   function peserta(kat, jk) {
     const seen = new Set();
     return S.reg.filter(r => r.valid && !r.dupSama && r.kats.includes(kat) && r.jkN === jk && !seen.has(r.key) && seen.add(r.key))
-      .map(r => ({ dada: r.bib == null ? '' : String(r.bib), nama: r.nama, klub: r.klub, reg: r }));
+      .map(r => ({ dada: nd(r.bib), nama: r.nama, klub: r.klub, reg: r }));
   }
   function timEstafet(kat) { return S.est.filter(t => t.kategori === kat && t.valid).map(t => ({ dada: '', nama: t.tim || t.klub, klub: t.klub })); }
   function daftarNomor() {
@@ -315,7 +317,7 @@
     let list = S.reg.filter(r =>
       (!f.kat || r.kats.includes(f.kat)) && (!f.jk || r.jkN === f.jk) &&
       (!f.status || (f.status === 'valid' ? r.valid : f.status === 'menunggu' ? !r.valid : f.status === 'masalah' ? (r.dupSama || r.lewat || (r.valid && r.bib == null)) : true)) &&
-      (!q || (r.nama + ' ' + r.klub + ' ' + (r.bib == null ? '' : r.bib) + ' ' + r.telp + ' ' + r.nik).toLowerCase().includes(q)));
+      (!q || (r.nama + ' ' + r.klub + ' ' + (r.bib == null ? '' : r.bib + ' ' + nd(r.bib)) + ' ' + r.telp + ' ' + r.nik).toLowerCase().includes(q)));
     const k = f.sort, d = f.dir === 'asc' ? 1 : -1;
     const val = r => k === 'bib' ? (r.bib == null ? 1e9 : r.bib) : k === 'ts' ? r.idx : String(r[k] || '').toLowerCase();
     list.sort((a, b) => (val(a) > val(b) ? 1 : val(a) < val(b) ? -1 : 0) * d);
@@ -417,11 +419,11 @@
 
   /* --- definisi ekspor --- */
   function defPendaftar(list, lengkap) {
-    const kolom = [{ h: 'No', w: 5, pw: 9, align: 'center' }, { h: 'Waktu Daftar', w: 17 }, { h: 'No. Dada', w: 9, align: 'center', tebal: true }, { h: 'Nama Atlet', w: 32, tebal: true }, { h: 'Club / Sekolah', w: 32 }, { h: 'L/P', w: 7, align: 'center' }, { h: 'Tgl Lahir', w: 12, align: 'center' }, { h: 'Umur', w: 6, align: 'center' }, { h: 'Kategori', w: 22 }, { h: 'Ukuran Baju', w: 14 }];
+    const kolom = [{ h: 'No', w: 5, pw: 9, align: 'center' }, { h: 'Waktu Daftar', w: 17 }, { h: 'No. Dada', w: 9, align: 'center', tebal: true, teks: true }, { h: 'Nama Atlet', w: 32, tebal: true }, { h: 'Club / Sekolah', w: 32 }, { h: 'L/P', w: 7, align: 'center' }, { h: 'Tgl Lahir', w: 12, align: 'center' }, { h: 'Umur', w: 6, align: 'center' }, { h: 'Kategori', w: 22 }, { h: 'Ukuran Baju', w: 14 }];
     if (lengkap) kolom.push({ h: 'No. Telp', w: 15, teks: true }, { h: 'NIK', w: 19, teks: true }, { h: 'Link Bukti Bayar', w: 40 });
     kolom.push({ h: 'Status Bayar', w: 13, align: 'center' });
     const baris = list.map((r, i) => {
-      const b = [i + 1, tsID(r.ts), r.bib == null ? '' : r.bib, r.nama, r.klub, r.jkN, tglID(r.tgl), umur(r.tgl), r.kats.join(', '), r.ukuran];
+      const b = [i + 1, tsID(r.ts), nd(r.bib), r.nama, r.klub, r.jkN, tglID(r.tgl), umur(r.tgl), r.kats.join(', '), r.ukuran];
       if (lengkap) b.push(r.telp, r.nik, r.bukti);
       b.push(r.valid ? (r.dupSama ? 'Valid (ganda)' : 'Valid') : 'Menunggu');
       return b;
@@ -429,7 +431,7 @@
     return { nama: lengkap ? 'Pendaftar Lengkap' : 'Pendaftar', judul: 'Data Pendaftar Atlet', sub: angka(list.length) + ' data • diekspor ' + new Date().toLocaleString('id-ID'), blok: [{ kolom, baris }] };
   }
   function defPesertaBlok() {
-    const kolom = [{ h: 'No', w: 5, pw: 10, align: 'center' }, { h: 'No. Dada', w: 9, pw: 18, align: 'center', tebal: true }, { h: 'Nama Atlet', w: 34, tebal: true }, { h: 'Club / Sekolah', w: 34 }, { h: 'Tgl Lahir', w: 12, pw: 24, align: 'center' }, { h: 'Ukuran Baju', w: 14, pw: 28 }];
+    const kolom = [{ h: 'No', w: 5, pw: 10, align: 'center' }, { h: 'No. Dada', w: 9, pw: 18, align: 'center', tebal: true, teks: true }, { h: 'Nama Atlet', w: 34, tebal: true }, { h: 'Club / Sekolah', w: 34 }, { h: 'Tgl Lahir', w: 12, pw: 24, align: 'center' }, { h: 'Ukuran Baju', w: 14, pw: 28 }];
     const blok = [];
     S.set.kategori.forEach(k => JK.forEach(j => {
       const p = peserta(k.nama, j).sort((a, b) => (+a.dada || 1e9) - (+b.dada || 1e9));
@@ -442,7 +444,7 @@
   /* ---------- REKAP ---------- */
   function defRekapKategori() {
     const L = Number(S.set.lintasan_penyisihan) || 6, T = Number(S.set.tim_estafet_per_seri) || 4;
-    const baris = S.set.kategori.map(k => { const a = peserta(k.nama, 'Putra').length, b = peserta(k.nama, 'Putri').length; return [k.nama, k.awal + '–' + k.akhir, a, b, a + b, Math.ceil(a / L), Math.ceil(b / L), (a + b) > (k.akhir - k.awal + 1) ? 'Melebihi kuota!' : (k.akhir - k.awal + 1) - (a + b) + ' sisa']; });
+    const baris = S.set.kategori.map(k => { const a = peserta(k.nama, 'Putra').length, b = peserta(k.nama, 'Putri').length; return [k.nama, nd(k.awal) + '–' + nd(k.akhir), a, b, a + b, Math.ceil(a / L), Math.ceil(b / L), (a + b) > (k.akhir - k.awal + 1) ? 'Melebihi kuota!' : (k.akhir - k.awal + 1) - (a + b) + ' sisa']; });
     const ea = S.est.filter(t => t.valid && /putra/i.test(t.kategori)).length, eb = S.est.filter(t => t.valid && /putri/i.test(t.kategori)).length;
     baris.push(['Estafet (tim)', '910–997', ea, eb, ea + eb, Math.ceil(ea / T), Math.ceil(eb / T), (ea + eb) * 4 + ' pelari']);
     const sum = i => baris.reduce((s, r) => s + (Number(r[i]) || 0), 0);
@@ -517,7 +519,7 @@
         d.ganda.map(g => g.rows.map((r, i) => '<tr data-id="' + esc(r.id) + '">' + (i === 0 ? '<td rowspan="' + g.rows.length + '" class="name">' + esc(g.nama) + '</td><td rowspan="' + g.rows.length + '">' + esc(g.kat) + '</td>' : '') + '<td>' + esc(tsID(r.ts)) + ' • ' + esc(r.klub) + ' • ' + (r.valid ? '<span class="tag ok">Valid</span>' : '<span class="tag warn">Menunggu</span>') + ' ' + bibHtml(r) + '</td><td class="r"><button class="btn btn-sm btn-danger hapus">' + ic('trash') + 'Hapus baris ini</button></td></tr>').join('')).join('') +
         '</tbody></table></div>' : kosong('Tidak ada pendaftaran ganda. Mantap!', 'check')) + '</div>' +
       '<div class="card"><div class="card-head"><h2>Atlet multi-kategori</h2><span class="muted small">Termasuk estafet</span></div>' + (d.multi.length ? '<div class="table-wrap"><table class="t"><thead><tr><th class="c">No. Dada</th><th>Nama</th><th>Club / Sekolah</th><th>Kategori diikuti</th><th class="c">Jumlah</th></tr></thead><tbody>' +
-        d.multi.map(m => '<tr><td class="c">' + (m.bib != null ? '<b class="num">' + m.bib + '</b>' : '—') + '</td><td class="name">' + esc(m.nama) + '</td><td>' + esc(m.klub) + '</td><td>' + m.kats.map(esc).join(', ') + '</td><td class="c"><span class="tag ' + (m.n > 2 ? 'bad' : 'warn') + '">' + m.n + ' kategori</span></td></tr>').join('') + '</tbody></table></div>' : kosong('Tidak ada atlet multi-kategori.')) + '</div>' +
+        d.multi.map(m => '<tr><td class="c">' + (m.bib != null ? '<b class="num">' + nd(m.bib) + '</b>' : '—') + '</td><td class="name">' + esc(m.nama) + '</td><td>' + esc(m.klub) + '</td><td>' + m.kats.map(esc).join(', ') + '</td><td class="c"><span class="tag ' + (m.n > 2 ? 'bad' : 'warn') + '">' + m.n + ' kategori</span></td></tr>').join('') + '</tbody></table></div>' : kosong('Tidak ada atlet multi-kategori.')) + '</div>' +
       '<div class="card"><div class="card-head"><h2>NIK sama dengan nama berbeda</h2></div>' + (d.nik.length ? '<div class="table-wrap free"><table class="t"><thead><tr><th>NIK</th><th>Nama-nama</th></tr></thead><tbody>' + d.nik.map(n => '<tr><td class="mono">' + esc(n.nik) + '</td><td>' + n.rows.map(r => esc(r.nama) + ' <span class="muted small">(' + esc(r.kats.join(', ')) + ')</span>').join('<br>') + '</td></tr>').join('') + '</tbody></table></div>' : kosong('Tidak ada NIK bentrok.', 'check')) + '</div></div>';
     $$('tr[data-id] .hapus').forEach(b => b.onclick = async () => {
       const r = S.reg.find(x => x.id === b.closest('tr').dataset.id);
@@ -525,7 +527,7 @@
     });
     const blok = () => [
       { judul: 'Pendaftaran Ganda', kolom: [{ h: 'Nama', w: 32, tebal: true }, { h: 'Kategori', w: 20 }, { h: 'Club', w: 30 }, { h: 'Waktu Daftar', w: 18 }, { h: 'Status', w: 12, align: 'center' }], baris: d.ganda.flatMap(g => g.rows.map(r => [r.nama, g.kat, r.klub, tsID(r.ts), r.valid ? 'Valid' : 'Menunggu'])) },
-      { judul: 'Atlet Multi-Kategori', kolom: [{ h: 'No. Dada', w: 10, align: 'center' }, { h: 'Nama', w: 32, tebal: true }, { h: 'Club / Sekolah', w: 30 }, { h: 'Kategori Diikuti', w: 45 }, { h: 'Jumlah', w: 9, align: 'center' }], baris: d.multi.map(m => [m.bib == null ? '' : m.bib, m.nama, m.klub, m.kats.join(', '), m.n]) },
+      { judul: 'Atlet Multi-Kategori', kolom: [{ h: 'No. Dada', w: 10, align: 'center', teks: true }, { h: 'Nama', w: 32, tebal: true }, { h: 'Club / Sekolah', w: 30 }, { h: 'Kategori Diikuti', w: 45 }, { h: 'Jumlah', w: 9, align: 'center' }], baris: d.multi.map(m => [nd(m.bib), m.nama, m.klub, m.kats.join(', '), m.n]) },
       { judul: 'NIK Sama, Nama Berbeda', kolom: [{ h: 'NIK', w: 20, teks: true }, { h: 'Nama', w: 32 }, { h: 'Kategori', w: 30 }], baris: d.nik.flatMap(n => n.rows.map(r => [n.nik, r.nama, r.kats.join(', ')])) },
     ];
     bindEkspor({
@@ -559,16 +561,16 @@
     const tot = b.ukuran.reduce((s, u) => s + b.total[u], 0);
     const kids = b.ukuran.filter(u => /KIDS|ANAK/.test(u)).reduce((s, u) => s + b.total[u], 0);
     el.innerHTML = head('Data Baju Atlet', '1 baju per kategori lomba perorangan yang tervalidasi. Peserta hanya-estafet tidak mendapat baju.',
-      '<button class="btn btn-brand" id="simpan-k1">' + ic('save') + 'Simpan kloter 1</button>' + menuEkspor('m-baju', [['xls', 'Excel — rekap baju lengkap', 'xls'], ['pdf', 'PDF — rekap cetak baju', 'pdf'], ['pdfKlub', 'PDF — pembagian baju per klub', 'pdf']])) +
+      '<button class="btn btn-brand" id="simpan-k1">' + ic('save') + 'Simpan kloter 1 ke sheet</button>' + menuEkspor('m-baju', [['xls', 'Excel — rekap baju lengkap', 'xls'], ['pdf', 'PDF — rekap cetak baju', 'pdf'], ['pdfKlub', 'PDF — pembagian baju per klub', 'pdf']])) +
       '<div class="kpis">' + kpi('Total baju', angka(tot), 'semua ukuran', 'hl') + kpi('Ukuran anak (Kids)', angka(kids), '') + kpi('Ukuran dewasa', angka(tot - kids), '') + kpi('Dapat > 1 baju', angka(b.multi.length), 'atlet multi-kategori') + kpi('Hanya estafet', angka(b.hanyaEst.length), 'tidak dapat baju') + '</div>' +
-      '<div class="cols"><div class="card"><div class="card-head"><h2>Rekap cetak per kloter</h2><span class="muted small">Isi jumlah yang sudah dicetak</span></div><div class="table-wrap free"><table class="t"><thead><tr><th>Ukuran</th><th class="c">Total data</th><th class="c">Kloter 1 (sudah cetak)</th><th class="c">Kloter 2 (akan cetak)</th></tr></thead><tbody>' +
+      '<div class="cols"><div class="card"><div class="card-head"><h2>Rekap cetak per kloter</h2><span class="muted small">Kloter 1 tersambung ke tab DATA BAJU ATLET</span></div><div class="table-wrap free"><table class="t"><thead><tr><th>Ukuran</th><th class="c">Total data</th><th class="c">Kloter 1 (sudah cetak)</th><th class="c">Kloter 2 (akan cetak)</th></tr></thead><tbody>' +
       b.ukuran.map(u => { const s = Number(k1[u] || 0); return '<tr><td class="name">' + esc(u) + '</td><td class="c num">' + b.total[u] + '</td><td class="c"><input class="input input-sm num k1" data-u="' + esc(u) + '" type="number" min="0" value="' + s + '" style="width:90px;text-align:center" aria-label="Kloter 1 ' + esc(u) + '"></td><td class="c num"><b style="color:' + (b.total[u] - s > 0 ? 'var(--warn)' : 'var(--ok)') + '">' + Math.max(0, b.total[u] - s) + '</b></td></tr>'; }).join('') +
       '</tbody><tfoot><tr><td>TOTAL</td><td class="c">' + tot + '</td><td class="c">' + b.ukuran.reduce((s, u) => s + Number(k1[u] || 0), 0) + '</td><td class="c">' + b.ukuran.reduce((s, u) => s + Math.max(0, b.total[u] - Number(k1[u] || 0)), 0) + '</td></tr></tfoot></table></div></div>' +
       '<div class="card"><div class="card-head"><h2>Peserta dapat lebih dari 1 baju</h2></div>' + (b.multi.length ? '<div class="table-wrap" style="max-height:420px"><table class="t"><thead><tr><th>Nama</th><th class="c">Baju</th><th>Ukuran</th></tr></thead><tbody>' + b.multi.map(m => '<tr><td><div class="name">' + esc(m.nama) + '</div><div class="sub-line">' + esc(m.klub) + ' • ' + esc(m.kat.join(', ')) + '</div></td><td class="c num">' + m.kat.length + '</td><td>' + esc(m.ukuran.join(', ')) + '</td></tr>').join('') + '</tbody></table></div>' : kosong('Tidak ada.')) + '</div></div>';
     $('#simpan-k1').onclick = async () => {
       const k = {}; $$('.k1').forEach(i => { if (+i.value) k[i.dataset.u] = +i.value; });
       const r = await act('Menyimpan…', () => BSR.call('simpanPengaturan', { baju_kloter1: k }));
-      if (r) { S.set = r; HAL.baju(el); toast('Kloter 1 tersimpan.', 'ok'); }
+      if (r) { S.set = r; HAL.baju(el); toast('Kloter 1 tersimpan ke tab DATA BAJU ATLET.', 'ok'); }
     };
     const kolom = [{ h: 'Ukuran Baju', w: 20, tebal: true }, { h: 'Total Data', w: 12, align: 'center' }, { h: 'Kloter 1 (Sudah Dicetak)', w: 18, align: 'center' }, { h: 'Kloter 2 (Akan Dicetak)', w: 18, align: 'center' }];
     const baris = b.ukuran.map(u => [u, b.total[u], Number(k1[u] || 0), Math.max(0, b.total[u] - Number(k1[u] || 0))]);
@@ -597,9 +599,9 @@
       t.pelari.forEach((p, i) => {
         if (!p || t.dada[i]) return;
         const kn = kunciNama(p);
-        if (byName[kn] != null) { t.dada[i] = String(byName[kn]); n++; return; }
+        if (byName[kn] != null) { t.dada[i] = nd(byName[kn]); n++; return; }
         if (!k) return;
-        for (let x = Number(k.awal); x <= Number(k.akhir); x++) if (!dipakai.has(String(x))) { t.dada[i] = String(x); dipakai.add(String(x)); n++; return; }
+        for (let x = Number(k.awal); x <= Number(k.akhir); x++) if (!dipakai.has(String(x))) { t.dada[i] = nd(x); dipakai.add(String(x)); n++; return; }
       });
     });
     return n;
@@ -698,7 +700,7 @@
           rows.filter(r => r.seri === s).map(r => { const hi = hasil.find(x => x.r === r); return '<tr draggable="true" data-i="' + S.seri.indexOf(r) + '"><td class="ln">' + r.lintasan + '</td><td class="num"><b>' + esc(r.dada || '—') + '</b></td><td><div class="name" style="font-size:.84rem">' + esc(r.nama) + '</div><div class="sub-line">' + esc(r.klub) + '</div></td><td class="time"><input value="' + esc(r.waktu) + '" inputmode="decimal" aria-label="Waktu ' + esc(r.nama) + '">' + (hi && hi.rank ? '<div class="sub-line" style="text-align:right">#' + hi.rank + '</div>' : '') + '</td></tr>'; }).join('') +
           '</tbody></table></div>').join('') + '</div>' +
         '<div class="card" style="margin-top:16px"><div class="card-head"><h2>Hasil ' + (babak === 'Final' ? 'final' : 'penyisihan') + '</h2><span class="muted small">' + (babak === 'Penyisihan' ? nFinal + ' teratas lolos final' : 'Juara 1–3 tampil di Podium') + '</span></div><div class="table-wrap free"><table class="t"><thead><tr><th class="c">#</th><th class="c">No</th><th>' + (n.estafet ? 'Tim' : 'Nama') + '</th><th>Club / Sekolah</th><th class="c">Seri</th><th class="r">Waktu</th><th>Ket.</th></tr></thead><tbody>' +
-        hasil.map(x => '<tr><td class="c">' + (x.rank ? '<span class="rank ' + (babak === 'Final' ? ['', 'g', 's', 'b'][x.rank] || '' : '') + '">' + x.rank + '</span>' : '—') + '</td><td class="c num">' + esc(x.r.dada) + '</td><td class="name">' + esc(x.r.nama) + '</td><td>' + esc(x.r.klub) + '</td><td class="c">' + x.r.seri + '</td><td class="r num"><b>' + esc(x.r.waktu || '—') + '</b></td><td>' + (babak === 'Penyisihan' && x.rank && x.rank <= nFinal ? '<span class="tag ok">Lolos final</span>' : babak === 'Final' && x.rank && x.rank <= 3 ? '<span class="medal m' + x.rank + '"><i></i>' + ['', 'Emas', 'Perak', 'Perunggu'][x.rank] + '</span>' : '') + '</td></tr>').join('') +
+        hasil.map(x => '<tr><td class="c">' + (x.rank ? '<span class="rank ' + (babak === 'Final' ? ['', 'g', 's', 'b'][x.rank] || '' : '') + '">' + x.rank + '</span>' : '—') + '</td><td class="c num">' + esc(nd(x.r.dada)) + '</td><td class="name">' + esc(x.r.nama) + '</td><td>' + esc(x.r.klub) + '</td><td class="c">' + x.r.seri + '</td><td class="r num"><b>' + esc(x.r.waktu || '—') + '</b></td><td>' + (babak === 'Penyisihan' && x.rank && x.rank <= nFinal ? '<span class="tag ok">Lolos final</span>' : babak === 'Final' && x.rank && x.rank <= 3 ? '<span class="medal m' + x.rank + '"><i></i>' + ['', 'Emas', 'Perak', 'Perunggu'][x.rank] + '</span>' : '') + '</td></tr>').join('') +
         '</tbody></table></div></div>'
         : '<div class="card">' + (babak === 'Final'
           ? (pen.length ? '<div class="empty">' + ic('flag') + 'Final belum dibuat.<br><br><button class="btn btn-brand" id="buat-final">' + ic('flag') + 'Buat final dari ' + nFinal + ' waktu terbaik penyisihan</button></div>' : kosong('Buat seri penyisihan dan isi waktunya dulu.', 'timer'))
@@ -787,12 +789,12 @@
   };
   function defStart(n, babak) {
     const rows = barisSeri(n.kat, n.jk, babak);
-    const kolom = [{ h: 'Lintasan', w: 9, pw: 18, align: 'center', tebal: true }, { h: 'No. Dada', w: 9, pw: 18, align: 'center', tebal: true }, { h: n.estafet ? 'Nama Tim' : 'Nama Atlet', w: 34, tebal: true }, { h: 'Club / Sekolah', w: 34 }, { h: 'Waktu', w: 12, pw: 26, align: 'center' }, { h: 'Ket.', w: 8, pw: 16, align: 'center' }];
+    const kolom = [{ h: 'Lintasan', w: 9, pw: 18, align: 'center', tebal: true }, { h: 'No. Dada', w: 9, pw: 18, align: 'center', tebal: true, teks: true }, { h: n.estafet ? 'Nama Tim' : 'Nama Atlet', w: 34, tebal: true }, { h: 'Club / Sekolah', w: 34 }, { h: 'Waktu', w: 12, pw: 26, align: 'center' }, { h: 'Ket.', w: 8, pw: 16, align: 'center' }];
     return {
       blok: [...new Set(rows.map(r => r.seri))].map(s => {
         const rs = rows.filter(r => r.seri === s);
         const max = Math.max(...rs.map(r => r.lintasan));
-        const lane = []; for (let i = 1; i <= max; i++) { const r = rs.find(x => x.lintasan === i); lane.push(r ? [i, r.dada, r.nama, r.klub, '', ''] : [i, '-', 'Kosong', '-', '', '']); }
+        const lane = []; for (let i = 1; i <= max; i++) { const r = rs.find(x => x.lintasan === i); lane.push(r ? [i, nd(r.dada), r.nama, r.klub, '', ''] : [i, '-', 'Kosong', '-', '', '']); }
         return { judul: babak === 'Final' ? 'Final' : 'Seri ' + s, kanan: rs.length + (n.estafet ? ' tim' : ' atlet'), kolom, baris: lane };
       }),
     };
@@ -801,8 +803,8 @@
     const h = urutkanHasil(barisSeri(n.kat, n.jk, babak)), nf = Number(S.set.lintasan_final) || 8;
     return {
       blok: [{
-        kolom: [{ h: 'Peringkat', w: 10, pw: 20, align: 'center', tebal: true }, { h: 'No. Dada', w: 9, pw: 18, align: 'center' }, { h: n.estafet ? 'Nama Tim' : 'Nama Atlet', w: 34, tebal: true }, { h: 'Club / Sekolah', w: 34 }, { h: 'Seri', w: 6, pw: 12, align: 'center' }, { h: 'Waktu', w: 11, pw: 22, align: 'center', tebal: true }, { h: 'Keterangan', w: 14, pw: 26, align: 'center' }],
-        baris: h.map(x => [x.rank || '-', x.r.dada, x.r.nama, x.r.klub, x.r.seri, x.r.waktu || '-', babak === 'Penyisihan' ? (x.rank && x.rank <= nf ? 'Lolos Final' : '') : (x.rank && x.rank <= 3 ? ['', 'Emas', 'Perak', 'Perunggu'][x.rank] : '')]),
+        kolom: [{ h: 'Peringkat', w: 10, pw: 20, align: 'center', tebal: true }, { h: 'No. Dada', w: 9, pw: 18, align: 'center', teks: true }, { h: n.estafet ? 'Nama Tim' : 'Nama Atlet', w: 34, tebal: true }, { h: 'Club / Sekolah', w: 34 }, { h: 'Seri', w: 6, pw: 12, align: 'center' }, { h: 'Waktu', w: 11, pw: 22, align: 'center', tebal: true }, { h: 'Keterangan', w: 14, pw: 26, align: 'center' }],
+        baris: h.map(x => [x.rank || '-', nd(x.r.dada), x.r.nama, x.r.klub, x.r.seri, x.r.waktu || '-', babak === 'Penyisihan' ? (x.rank && x.rank <= nf ? 'Lolos Final' : '') : (x.rank && x.rank <= 3 ? ['', 'Emas', 'Perak', 'Perunggu'][x.rank] : '')]),
       }],
     };
   }
@@ -828,10 +830,10 @@
     el.innerHTML = head('Podium Juara', 'Otomatis dari waktu babak final. Bila final belum ada waktu, ditampilkan hasil sementara penyisihan.',
       menuEkspor('m-pod', [['pdf', 'PDF — rekap resmi podium juara', 'pdf'], ['xls', 'Excel — podium + klasemen medali', 'xls'], ['pdfK', 'PDF — klasemen medali klub', 'pdf']])) +
       '<div class="cols-2-1"><div class="card"><div class="card-head"><h2>Rekapitulasi juara</h2></div><div class="table-wrap"><table class="t"><thead><tr><th>Nomor lomba</th><th>Peringkat</th><th class="c">No</th><th>Nama</th><th>Club / Sekolah</th><th class="r">Waktu</th><th>Status</th></tr></thead><tbody>' +
-      tampil.map(o => '<tr><td class="nowrap">' + (o.pos === 1 ? '<b>' + esc(o.n.label) + '</b>' : '') + '</td>' + (o.status === 'Menunggu' ? '<td colspan="5" class="muted">Menunggu hasil lomba</td>' : '<td><span class="medal m' + o.pos + '"><i></i>' + nama[o.pos - 1] + '</span></td><td class="c num">' + esc(o.x ? o.x.r.dada : '') + '</td><td class="name">' + esc(o.x ? o.x.r.nama : '—') + '</td><td>' + esc(o.x ? o.x.r.klub : '') + '</td><td class="r num"><b>' + esc(o.x ? o.x.r.waktu : '') + '</b></td>') + '<td>' + (o.pos === 1 || o.status !== 'Menunggu' ? '<span class="tag ' + (o.status === 'Final' ? 'ok' : o.status === 'Sementara' ? 'warn' : 'neutral') + '">' + (o.status === 'Final' ? 'Resmi (final)' : o.status === 'Sementara' ? 'Sementara' : 'Menunggu final') + '</span>' : '') + '</td></tr>').join('') +
+      tampil.map(o => '<tr><td class="nowrap">' + (o.pos === 1 ? '<b>' + esc(o.n.label) + '</b>' : '') + '</td>' + (o.status === 'Menunggu' ? '<td colspan="5" class="muted">Menunggu hasil lomba</td>' : '<td><span class="medal m' + o.pos + '"><i></i>' + nama[o.pos - 1] + '</span></td><td class="c num">' + esc(o.x ? nd(o.x.r.dada) : '') + '</td><td class="name">' + esc(o.x ? o.x.r.nama : '—') + '</td><td>' + esc(o.x ? o.x.r.klub : '') + '</td><td class="r num"><b>' + esc(o.x ? o.x.r.waktu : '') + '</b></td>') + '<td>' + (o.pos === 1 || o.status !== 'Menunggu' ? '<span class="tag ' + (o.status === 'Final' ? 'ok' : o.status === 'Sementara' ? 'warn' : 'neutral') + '">' + (o.status === 'Final' ? 'Resmi (final)' : o.status === 'Sementara' ? 'Sementara' : 'Menunggu final') + '</span>' : '') + '</td></tr>').join('') +
       '</tbody></table></div></div><div class="card"><div class="card-head"><h2>Klasemen medali klub</h2></div>' + (d.klasemen.length ? '<div class="table-wrap free"><table class="t"><thead><tr><th class="c">#</th><th>Club</th><th class="c">🥇</th><th class="c">🥈</th><th class="c">🥉</th><th class="c">Total</th></tr></thead><tbody>' + d.klasemen.map((k, i) => '<tr><td class="c">' + (i + 1) + '</td><td class="name">' + esc(k.klub) + '</td><td class="c num">' + k.e + '</td><td class="c num">' + k.p + '</td><td class="c num">' + k.b + '</td><td class="c num"><b>' + k.t + '</b></td></tr>').join('') + '</tbody></table></div>' : kosong('Klasemen muncul setelah ada waktu final.', 'trophy')) + '</div></div>';
-    const kolom = [{ h: 'Kategori Lomba', w: 26, pw: 40, tebal: true }, { h: 'Peringkat / Medali', w: 18, pw: 30 }, { h: 'No. Dada', w: 9, pw: 16, align: 'center' }, { h: 'Nama Lengkap Atlet', w: 32, tebal: true }, { h: 'Asal Sekolah / Klub', w: 30 }, { h: 'Catatan Waktu', w: 12, pw: 20, align: 'center' }, { h: 'Status Hasil', w: 16, pw: 30, align: 'center' }];
-    const baris = d.out.map(o => [o.pos === 1 ? o.n.label : '', nama[o.pos - 1], o.x ? o.x.r.dada : '', o.x ? o.x.r.nama : '', o.x ? o.x.r.klub : '', o.x ? o.x.r.waktu : '', o.status === 'Final' ? 'Resmi' : o.status === 'Sementara' ? 'Sementara' : 'Menunggu Final']);
+    const kolom = [{ h: 'Kategori Lomba', w: 26, pw: 40, tebal: true }, { h: 'Peringkat / Medali', w: 18, pw: 30 }, { h: 'No. Dada', w: 9, pw: 16, align: 'center', teks: true }, { h: 'Nama Lengkap Atlet', w: 32, tebal: true }, { h: 'Asal Sekolah / Klub', w: 30 }, { h: 'Catatan Waktu', w: 12, pw: 20, align: 'center' }, { h: 'Status Hasil', w: 16, pw: 30, align: 'center' }];
+    const baris = d.out.map(o => [o.pos === 1 ? o.n.label : '', nama[o.pos - 1], o.x ? nd(o.x.r.dada) : '', o.x ? o.x.r.nama : '', o.x ? o.x.r.klub : '', o.x ? o.x.r.waktu : '', o.status === 'Final' ? 'Resmi' : o.status === 'Sementara' ? 'Sementara' : 'Menunggu Final']);
     const kl = { kolom: [{ h: 'Peringkat', w: 10, pw: 18, align: 'center' }, { h: 'Club / Sekolah', w: 40, tebal: true }, { h: 'Emas', w: 8, align: 'center' }, { h: 'Perak', w: 8, align: 'center' }, { h: 'Perunggu', w: 10, align: 'center' }, { h: 'Total', w: 8, align: 'center', tebal: true }], baris: d.klasemen.map((k, i) => [i + 1, k.klub, k.e, k.p, k.b, k.t]) };
     bindEkspor({
       pdf: () => X.pdf('Podium Juara - ' + S.set.nama_acara, { orientasi: 'landscape', judul: 'Lembar Rekapitulasi Resmi Podium Juara & Medali', blok: [{ kolom, baris }], ttd: 'dua' }),
@@ -847,14 +849,14 @@
       if (r.bib == null || seen.has(r.bib + '|' + r.key)) return;
       seen.add(r.bib + '|' + r.key);
       const semua = S.reg.filter(x => x.key === r.key && x.valid && !x.dupSama).flatMap(x => x.kats);
-      out.push({ no: r.bib, nama: r.nama, klub: r.klub, kategori: [...new Set(semua)].join(' + '), kat0: r.kats[0], jk: r.jkN, warna: r.warna, ukuran: [...new Set(S.reg.filter(x => x.key === r.key && x.valid && !x.dupSama).map(x => x.ukuran))].join(', ') });
+      out.push({ no: r.bib, noT: nd(r.bib), nama: r.nama, klub: r.klub, kategori: [...new Set(semua)].join(' + '), kat0: r.kats[0], jk: r.jkN, warna: r.warna, ukuran: [...new Set(S.reg.filter(x => x.key === r.key && x.valid && !x.dupSama).map(x => x.ukuran))].join(', ') });
     });
     if (UI.bib.est) {
       const ada = new Set(out.map(o => String(o.no)));
       S.est.filter(t => t.valid).forEach(t => t.pelari.forEach((p, i) => {
         const no = t.dada[i]; if (!p || !no || ada.has(String(no))) return; ada.add(String(no));
         const k = KATE[kunciKat(t.kategori)];
-        out.push({ no: +no || no, nama: p, klub: t.klub, kategori: 'Estafet ' + t.kategori, kat0: 'Estafet ' + t.kategori, jk: /putri/i.test(t.kategori) ? 'Putri' : 'Putra', warna: k ? k.warna : '', ukuran: '-' });
+        out.push({ no: +no || no, noT: nd(no), nama: p, klub: t.klub, kategori: 'Estafet ' + t.kategori, kat0: 'Estafet ' + t.kategori, jk: /putri/i.test(t.kategori) ? 'Putri' : 'Putra', warna: k ? k.warna : '', ukuran: '-' });
       }));
     }
     return out.sort((a, b) => (+a.no || 0) - (+b.no || 0));
@@ -862,7 +864,7 @@
   HAL.nomor = el => {
     const f = UI.bib;
     const semua = daftarBib();
-    const list = semua.filter(b => (!f.kat || b.kat0 === f.kat || b.kategori.includes(f.kat)) && (!f.jk || b.jk === f.jk) && (!f.q || (b.no + ' ' + b.nama + ' ' + b.klub).toLowerCase().includes(f.q.toLowerCase())));
+    const list = semua.filter(b => (!f.kat || b.kat0 === f.kat || b.kategori.includes(f.kat)) && (!f.jk || b.jk === f.jk) && (!f.q || (b.noT + ' ' + b.no + ' ' + b.nama + ' ' + b.klub).toLowerCase().includes(f.q.toLowerCase())));
     const katOpt = S.set.kategori.map(k => k.nama).concat(S.set.kategori_estafet.map(k => 'Estafet ' + k.nama));
     const tampil = list.slice(0, 48);
     el.innerHTML = head('Nomor Dada & Race Pack', 'Nomor dada siap cetak (2 per A4, potong jadi A5), warna sesuai tabel REFERENSI NOMOR DADA.',
@@ -872,7 +874,7 @@
       '<div class="seg" id="bjk">' + ['', 'Putra', 'Putri'].map(j => '<button aria-pressed="' + (f.jk === j) + '" data-v="' + j + '">' + (j || 'Semua') + '</button>').join('') + '</div>' +
       '<label class="check"><input type="checkbox" id="best" ' + (f.est ? 'checked' : '') + '> Sertakan pelari estafet</label></div></div>' +
       '<div class="cols-2-1"><div class="card"><div class="card-head"><h2>Pratinjau</h2><span class="muted small">' + (list.length > 48 ? '48 dari ' + list.length : list.length) + ' nomor</span></div>' +
-      (tampil.length ? '<div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">' + tampil.map(b => { const w = X.warnaBib(b.warna); const bg = 'rgb(' + w.bg.join(',') + ')', fg = 'rgb(' + w.fg.join(',') + ')'; return '<div style="border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;color:#111;text-align:center"><div style="background:' + bg + ';color:' + fg + ';font-size:.62rem;font-weight:800;padding:4px 6px;letter-spacing:.04em">' + esc(S.set.nama_acara) + '</div><div style="font-size:2.3rem;font-weight:800;line-height:1.15;padding:6px 0 0" class="num">' + esc(b.no) + '</div><div style="font-size:.62rem;font-weight:800;color:' + fg + ';background:' + bg + ';margin:2px 10px;border-radius:4px;padding:1px 4px">' + esc((b.kategori + ' • ' + b.jk).toUpperCase()) + '</div><div style="font-size:.72rem;font-weight:700;padding:4px 6px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(b.nama) + '</div><div style="font-size:.62rem;color:#555;padding:0 6px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(b.klub) + '</div></div>'; }).join('') + '</div>' : kosong('Belum ada nomor dada. Validasi pembayaran dulu.', 'hash')) + '</div>' +
+      (tampil.length ? '<div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">' + tampil.map(b => { const w = X.warnaBib(b.warna); const bg = 'rgb(' + w.bg.join(',') + ')', fg = 'rgb(' + w.fg.join(',') + ')'; return '<div style="border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;color:#111;text-align:center"><div style="background:' + bg + ';color:' + fg + ';font-size:.62rem;font-weight:800;padding:4px 6px;letter-spacing:.04em">' + esc(S.set.nama_acara) + '</div><div style="font-size:2.3rem;font-weight:800;line-height:1.15;padding:6px 0 0" class="num">' + esc(b.noT) + '</div><div style="font-size:.62rem;font-weight:800;color:' + fg + ';background:' + bg + ';margin:2px 10px;border-radius:4px;padding:1px 4px">' + esc((b.kategori + ' • ' + b.jk).toUpperCase()) + '</div><div style="font-size:.72rem;font-weight:700;padding:4px 6px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(b.nama) + '</div><div style="font-size:.62rem;color:#555;padding:0 6px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(b.klub) + '</div></div>'; }).join('') + '</div>' : kosong('Belum ada nomor dada. Validasi pembayaran dulu.', 'hash')) + '</div>' +
       '<div class="card"><div class="card-head"><h2>Acuan nomor dada</h2></div><div class="table-wrap free"><table class="t"><thead><tr><th>Kategori</th><th class="c">Rentang</th><th class="c">Terpakai</th></tr></thead><tbody>' +
       S.set.kategori.map(k => { const n = semua.filter(b => b.no >= k.awal && b.no <= k.akhir).length; const q = k.akhir - k.awal + 1; return '<tr><td><span class="bib ' + esc(k.warna) + '" style="min-width:14px;height:14px;padding:0;margin-right:6px;vertical-align:-2px"></span>' + esc(k.nama) + '</td><td class="c num">' + k.awal + '–' + k.akhir + '</td><td class="c num"><span class="tag ' + (n > q * 0.9 ? 'warn' : 'neutral') + '">' + n + '/' + q + '</span></td></tr>'; }).join('') +
       S.set.kategori_estafet.map(k => { const n = semua.filter(b => b.no >= k.awal && b.no <= k.akhir).length; return '<tr><td><span class="bib ' + esc(k.warna) + '" style="min-width:14px;height:14px;padding:0;margin-right:6px;vertical-align:-2px"></span>Estafet ' + esc(k.nama) + '</td><td class="c num">' + k.awal + '–' + k.akhir + '</td><td class="c num"><span class="tag neutral">' + n + '/' + (k.akhir - k.awal + 1) + '</span></td></tr>'; }).join('') +
@@ -882,15 +884,15 @@
     $('#bkat').onchange = e => { f.kat = e.target.value; HAL.nomor(el); };
     $$('#bjk button').forEach(b => b.onclick = () => { f.jk = b.dataset.v; HAL.nomor(el); });
     $('#best').onchange = e => { f.est = e.target.checked; HAL.nomor(el); };
-    $('#cetak-bib').onclick = () => act('Membuat ' + list.length + ' nomor dada…', () => X.nomorDada('Nomor Dada ' + (f.kat || 'Semua') + (f.jk ? ' ' + f.jk : '') + ' - ' + S.set.nama_acara, list));
+    $('#cetak-bib').onclick = () => act('Membuat ' + list.length + ' nomor dada…', () => X.nomorDada('Nomor Dada ' + (f.kat || 'Semua') + (f.jk ? ' ' + f.jk : '') + ' - ' + S.set.nama_acara, list.map(b => Object.assign({}, b, { no: b.noT }))));
     const rpBlok = () => {
       const g = {}; list.forEach(b => (g[String(b.klub).toUpperCase().trim()] = g[String(b.klub).toUpperCase().trim()] || []).push(b));
-      return Object.keys(g).sort().map(k => ({ judul: k, kanan: g[k].length + ' atlet', kolom: [{ h: 'No', w: 5, pw: 9, align: 'center' }, { h: 'No. Dada', w: 9, pw: 17, align: 'center', tebal: true }, { h: 'Nama Atlet', w: 32, tebal: true }, { h: 'Kategori', w: 28 }, { h: 'Ukuran Baju', w: 16, pw: 26 }, { h: 'Paraf', w: 12, pw: 22 }], baris: g[k].map((b, i) => [i + 1, b.no, b.nama, b.kategori, b.ukuran, '']) }));
+      return Object.keys(g).sort().map(k => ({ judul: k, kanan: g[k].length + ' atlet', kolom: [{ h: 'No', w: 5, pw: 9, align: 'center' }, { h: 'No. Dada', w: 9, pw: 17, align: 'center', tebal: true, teks: true }, { h: 'Nama Atlet', w: 32, tebal: true }, { h: 'Kategori', w: 28 }, { h: 'Ukuran Baju', w: 16, pw: 26 }, { h: 'Paraf', w: 12, pw: 22 }], baris: g[k].map((b, i) => [i + 1, b.noT, b.nama, b.kategori, b.ukuran, '']) }));
     };
     bindEkspor({
       rp: () => X.pdf('Race Pack per Klub - ' + S.set.nama_acara, { judul: 'Daftar Pengambilan Race Pack per Club / Sekolah', sub: 'Nomor dada + baju • paraf saat pengambilan', blok: rpBlok(), utuh: true, tinggiBaris: 7 }),
       rpx: () => X.excel('Race Pack per Klub - ' + S.set.nama_acara, [{ nama: 'Race Pack', judul: 'Daftar Pengambilan Race Pack per Club / Sekolah', blok: rpBlok() }]),
-      ref: () => X.pdf('Acuan Nomor Dada - ' + S.set.nama_acara, { judul: 'Tabel Acuan & Standarisasi Nomor Dada', blok: [{ kolom: [{ h: 'Kategori Perlombaan', tebal: true }, { h: 'Nomor Awal', align: 'center' }, { h: 'Nomor Akhir', align: 'center' }, { h: 'Total Kuota', align: 'center' }, { h: 'Warna Identitas', align: 'center' }, { h: 'Terpakai', align: 'center' }], baris: S.set.kategori.map(k => [k.nama, k.awal, k.akhir, k.akhir - k.awal + 1, k.warna, semua.filter(b => b.no >= k.awal && b.no <= k.akhir).length]).concat(S.set.kategori_estafet.map(k => ['Estafet ' + k.nama, k.awal, k.akhir, k.akhir - k.awal + 1, k.warna, semua.filter(b => b.no >= k.awal && b.no <= k.akhir).length])) }] }),
+      ref: () => X.pdf('Acuan Nomor Dada - ' + S.set.nama_acara, { judul: 'Tabel Acuan & Standarisasi Nomor Dada', blok: [{ kolom: [{ h: 'Kategori Perlombaan', tebal: true }, { h: 'Nomor Awal', align: 'center' }, { h: 'Nomor Akhir', align: 'center' }, { h: 'Total Kuota', align: 'center' }, { h: 'Warna Identitas', align: 'center' }, { h: 'Terpakai', align: 'center' }], baris: S.set.kategori.map(k => [k.nama, nd(k.awal), nd(k.akhir), k.akhir - k.awal + 1, k.warna, semua.filter(b => b.no >= k.awal && b.no <= k.akhir).length]).concat(S.set.kategori_estafet.map(k => ['Estafet ' + k.nama, nd(k.awal), nd(k.akhir), k.akhir - k.awal + 1, k.warna, semua.filter(b => b.no >= k.awal && b.no <= k.akhir).length])) }] }),
     });
   };
 
@@ -995,7 +997,7 @@
     sh.push({ nama: 'Data Baju', judul: 'Rekap Kebutuhan Kaos / Jersey', blok: [{ kolom: [{ h: 'Ukuran', w: 20 }, { h: 'Jumlah', w: 10, align: 'center' }], baris: b.ukuran.map(u => [u, b.total[u]]), total: ['TOTAL', b.ukuran.reduce((s, u) => s + b.total[u], 0)] }] });
     sh.push({ nama: 'Estafet', judul: 'Tim Estafet', blok: [{ kolom: [{ h: 'Kategori', w: 14 }, { h: 'Sekolah / Klub', w: 28 }, { h: 'Tim', w: 18 }, { h: 'Pelari 1', w: 24 }, { h: 'Pelari 2', w: 24 }, { h: 'Pelari 3', w: 24 }, { h: 'Pelari 4', w: 24 }, { h: 'Cadangan', w: 22 }, { h: 'Pelatih', w: 18 }, { h: 'Status', w: 10 }], baris: S.est.map(t => [t.kategori, t.klub, t.tim].concat(t.pelari.map((p, j) => p ? p + (t.dada[j] ? ' (' + t.dada[j] + ')' : '') : '')).concat([t.pelatih, t.valid ? 'Valid' : 'Menunggu'])) }] });
     const p = dataPodium();
-    sh.push({ nama: 'Podium', judul: 'Podium Juara', tanpaFilter: true, blok: [{ kolom: [{ h: 'Nomor Lomba', w: 26 }, { h: 'Peringkat', w: 10, align: 'center' }, { h: 'No. Dada', w: 9, align: 'center' }, { h: 'Nama', w: 32 }, { h: 'Club', w: 30 }, { h: 'Waktu', w: 11, align: 'center' }, { h: 'Status', w: 12 }], baris: p.out.map(o => [o.n.label, o.pos, o.x ? o.x.r.dada : '', o.x ? o.x.r.nama : '', o.x ? o.x.r.klub : '', o.x ? o.x.r.waktu : '', o.status]) }] });
+    sh.push({ nama: 'Podium', judul: 'Podium Juara', tanpaFilter: true, blok: [{ kolom: [{ h: 'Nomor Lomba', w: 26 }, { h: 'Peringkat', w: 10, align: 'center' }, { h: 'No. Dada', w: 9, align: 'center', teks: true }, { h: 'Nama', w: 32 }, { h: 'Club', w: 30 }, { h: 'Waktu', w: 11, align: 'center' }, { h: 'Status', w: 12 }], baris: p.out.map(o => [o.n.label, o.pos, o.x ? nd(o.x.r.dada) : '', o.x ? o.x.r.nama : '', o.x ? o.x.r.klub : '', o.x ? o.x.r.waktu : '', o.status]) }] });
     await X.excel('Rekap Lengkap - ' + S.set.nama_acara, sh);
   }
 
