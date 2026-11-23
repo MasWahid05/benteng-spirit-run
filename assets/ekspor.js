@@ -17,7 +17,7 @@
   }
   async function siap(jenis) { for (const s of LIB[jenis]) await script(s); }
 
-  const HIJAU = '0F6B3A', HIJAU_RGB = [15, 107, 58], KUNING_RGB = [245, 196, 0];
+  const HIJAU = '1B1F27', HIJAU_RGB = [27, 31, 39], KUNING_RGB = [255, 210, 63], TARTAN_RGB = [196, 70, 42];
   const info = () => (window.BSR_INFO ? window.BSR_INFO() : { acara: 'BENTENG SPIRIT RUN 2026', penyelenggara: 'Pengurus Cabang PASI Kota Tangerang', tanggal: '', lokasi: '', ketua: '', referee: '' });
   const stamp = () => {
     const d = new Date();
@@ -77,8 +77,8 @@
         if (b.judul) {
           ws.mergeCells(r, 1, r, b.kolom.length);
           const c = ws.getCell(r, 1);
-          c.value = b.judul; c.font = { bold: true, size: 11, color: { argb: 'FF0F6B3A' } };
-          c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE6F2EA' } };
+          c.value = b.judul; c.font = { bold: true, size: 11, color: { argb: 'FFA63A22' } };
+          c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF4CC' } };
           c.alignment = { vertical: 'middle', indent: 1 };
           ws.getRow(r).height = 20; r++;
         }
@@ -104,7 +104,7 @@
             c.border = kotak;
             c.font = { size: 10, bold: !!k.tebal };
             c.alignment = { horizontal: k.align || (typeof v === 'number' ? 'center' : 'left'), vertical: 'middle', wrapText: !!k.wrap };
-            if (ri % 2 === 1) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF4F8F5' } };
+            if (ri % 2 === 1) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF7F5F1' } };
           });
           xr.height = 18; r++;
         });
@@ -180,7 +180,7 @@
     const I = info();
     doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(15, 26, 20);
     doc.text(I.acara, W / 2, y + 5, { align: 'center' });
-    doc.setFontSize(11.5); doc.setTextColor(...HIJAU_RGB);
+    doc.setFontSize(11.5); doc.setTextColor(...TARTAN_RGB);
     const jl = doc.splitTextToSize(String(judul).toUpperCase(), W - 30);
     doc.text(jl, W / 2, y + 11, { align: 'center' });
     y += 11 + (jl.length - 1) * 5;
@@ -202,7 +202,7 @@
       doc.text(info().acara + ' — ' + judul, 10, H - 6.5);
       doc.text('Dicetak ' + stamp() + '   •   Halaman ' + i + ' dari ' + n, W - 10, H - 6.5, { align: 'right' });
       if (i > 1) {
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...HIJAU_RGB);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...TARTAN_RGB);
         doc.text(info().acara + '  •  ' + String(judul).toUpperCase(), 10, 8);
       }
     }
@@ -238,8 +238,8 @@
       const perkiraan = 8 + 7 * Math.min((b.baris || []).length + 1, o.utuh ? 12 : 4);
       if (i > 0 && y + perkiraan > H - 16) { doc.addPage(); y = 14; }
       if (b.judul) {
-        doc.setFillColor(230, 242, 234); doc.roundedRect(10, y, doc.internal.pageSize.getWidth() - 20, 7, 1.2, 1.2, 'F');
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(...HIJAU_RGB);
+        doc.setFillColor(255, 244, 204); doc.roundedRect(10, y, doc.internal.pageSize.getWidth() - 20, 7, 1.2, 1.2, 'F');
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(...TARTAN_RGB);
         doc.text(String(b.judul), 13, y + 4.9);
         if (b.kanan) doc.text(String(b.kanan), doc.internal.pageSize.getWidth() - 13, y + 4.9, { align: 'right' });
         doc.setTextColor(0); y += 8.5;
@@ -255,7 +255,7 @@
         styles: { font: 'helvetica', fontSize: o.font || 8.6, cellPadding: o.padding || 1.8, lineColor: [201, 211, 205], lineWidth: 0.15, textColor: [15, 26, 20], valign: 'middle', minCellHeight: o.tinggiBaris || 0 },
         headStyles: { fillColor: HIJAU_RGB, textColor: 255, fontStyle: 'bold', fontSize: (o.font || 8.6) - 0.2 },
         footStyles: { fillColor: [255, 244, 194], textColor: [15, 26, 20], fontStyle: 'bold' },
-        alternateRowStyles: { fillColor: [244, 248, 245] },
+        alternateRowStyles: { fillColor: [247, 245, 241] },
         columnStyles: colStyles, rowPageBreak: 'avoid', showHead: 'everyPage', showFoot: 'lastPage',
         pageBreak: o.utuh && i > 0 ? 'auto' : 'auto',
       });

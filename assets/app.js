@@ -294,7 +294,7 @@
       kpi('Estimasi dana masuk', rp(st.dana).replace(' ', ' '), rp(S.set.biaya) + ' × slot valid', 'sm') +
       '</div>' +
       '<div class="cols-2-1"><div class="card"><div class="card-head"><h2>Peserta per kategori</h2><span class="muted small">≈ ' + seriTotal + ' seri penyisihan (' + L + ' lintasan)</span></div>' +
-      '<div class="legend"><span><i style="background:var(--brand)"></i>Putra</span><span><i style="background:var(--accent)"></i>Putri</span></div><div class="bars">' +
+      '<div class="legend"><span><i style="background:var(--tartan)"></i>Putra</span><span><i style="background:#FFD23F"></i>Putri</span></div><div class="bars">' +
       rows.map(r => '<div class="bar-row"><span class="nowrap" title="' + esc(r.k.nama) + '">' + esc(r.k.nama) + '</span><div class="bar-track" role="img" aria-label="' + esc(r.k.nama) + ': ' + r.a + ' putra, ' + r.b + ' putri"><div class="bar-a" style="width:' + (r.a / max * 100) + '%"></div><div class="bar-b" style="width:' + (r.b / max * 100) + '%"></div></div><b class="num" style="text-align:right">' + (r.a + r.b) + '</b></div>').join('') +
       '</div></div>' +
       '<div class="card"><div class="card-head"><h2>Pendaftar terbaru</h2><a href="#pendaftar" class="small">Lihat semua</a></div>' +
@@ -1006,7 +1006,7 @@
   /* ================================================================== */
   function gantiTema() {
     const r = document.documentElement;
-    const gelap = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    const gelap = r.dataset.theme !== 'light';
     r.dataset.theme = gelap ? 'light' : 'dark';
     BSR.ls.set('bsr_tema', r.dataset.theme);
   }

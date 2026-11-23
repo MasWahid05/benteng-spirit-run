@@ -6,30 +6,31 @@
 <title>Masuk Panitia — Benteng Spirit Run</title>
 <meta name="description" content="Masuk ke panel panitia Sistem Perlombaan Atletik Benteng Spirit Run — PASI Kota Tangerang.">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#0f6b3a">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f6b3a'/%3E%3Cpath d='M7 22h4l3-9 4 11 3-7h4' fill='none' stroke='%23f5c400' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#0A0C10">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23FFD23F'/%3E%3Cpath d='M7 22h4l3-9 4 11 3-7h4' fill='none' stroke='%230A0C10' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=9">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700;800&family=Barlow+Semi+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css?v=10">
 <style>
   body{background:var(--bg)}
   .wrapL{min-height:100dvh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
-  .art{position:relative;overflow:hidden;background:linear-gradient(155deg,#0f6b3a 0%,#0a4d2a 70%,#083d21 100%);color:#fff;padding:clamp(28px,5vw,64px);display:flex;flex-direction:column;justify-content:space-between;isolation:isolate}
-  .art::before{content:"";position:absolute;inset:auto -20% -18% -20%;height:62%;background:repeating-linear-gradient(0deg,transparent 0 46px,rgb(255 255 255/.16) 46px 49px);transform:perspective(600px) rotateX(58deg);transform-origin:bottom;z-index:-1}
-  .art::after{content:"";position:absolute;width:520px;height:520px;right:-160px;top:-160px;border-radius:50%;background:radial-gradient(closest-side,rgb(245 196 0/.35),transparent);z-index:-1}
+  .art{position:relative;overflow:hidden;background:radial-gradient(600px 300px at 75% 0,rgb(255 210 63/.22),transparent 70%),linear-gradient(170deg,#141820 0%,#07090C 72%);color:#fff;padding:clamp(28px,5vw,64px);display:flex;flex-direction:column;justify-content:space-between;isolation:isolate}
+  .art::before{content:"";position:absolute;inset:auto -20% -18% -20%;height:62%;background:repeating-linear-gradient(0deg,#B03E25 0 46px,rgb(244 241 234/.6) 46px 49px);opacity:.75;transform:perspective(600px) rotateX(58deg);transform-origin:bottom;z-index:-1}
+  .art::after{content:"";position:absolute;width:640px;height:640px;right:-200px;top:-260px;border-radius:50%;background:radial-gradient(closest-side,rgb(255 240 200/.30),transparent);z-index:-1}
   .art .lg{display:flex;align-items:center;gap:12px;font-weight:800}
-  .art .lg span{width:44px;height:44px;border-radius:12px;background:rgb(255 255 255/.12);border:1px solid rgb(255 255 255/.2);display:grid;place-items:center}
-  .art .lg svg{width:24px;height:24px;color:var(--accent)}
-  .art h1{color:#fff;font-size:clamp(2rem,3.4vw + .6rem,3.4rem);line-height:1.05;margin:0 0 14px;max-width:14ch}
-  .art h1 em{font-style:normal;color:var(--accent)}
+  .art .lg span{width:44px;height:44px;border-radius:10px;background:#FFD23F;display:grid;place-items:center;transform:skewX(-6deg)}
+  .art .lg svg{width:24px;height:24px;color:#0A0C10}
+  .art .lg{font-family:var(--font-judul);font-weight:400;text-transform:uppercase;letter-spacing:.03em;font-size:1.2rem}
+  .art h1{color:#fff;font-family:var(--font-judul);font-weight:400;text-transform:uppercase;font-size:clamp(2.6rem,4.4vw + .6rem,4.6rem);line-height:.98;margin:0 0 14px;max-width:12ch}
+  .art h1 em{font-style:normal;color:#FFD23F}
   .art p{color:rgb(255 255 255/.82);max-width:44ch;margin:0}
   .pts{list-style:none;padding:0;margin:26px 0 0;display:grid;gap:12px}
   .pts li{display:flex;gap:12px;align-items:flex-start;font-weight:600}
-  .pts li b{flex:none;width:28px;height:28px;border-radius:8px;background:var(--accent);color:#1d1800;display:grid;place-items:center;font-size:.8rem}
+  .pts li b{flex:none;width:28px;height:28px;border-radius:6px;background:#FFD23F;color:#14110A;transform:skewX(-6deg);display:grid;place-items:center;font-size:.8rem}
   .foot-art{font-size:.8rem;color:rgb(255 255 255/.6)}
   .formside{display:grid;place-items:center;padding:clamp(20px,5vw,56px)}
   .box{width:min(420px,100%)}
-  .box h2{font-size:1.6rem;margin-bottom:6px}
+  .box h2{font-family:var(--font-judul);font-weight:400;text-transform:uppercase;font-size:2.2rem;margin-bottom:6px;letter-spacing:.01em}
   .pinwrap{position:relative}
   .pinwrap .input{min-height:54px;font-size:1.25rem;letter-spacing:.35em;padding-right:52px}
   .pinwrap button{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:42px;height:42px;border:0;background:none;border-radius:8px;cursor:pointer;color:var(--muted)}
@@ -88,8 +89,8 @@
 </div>
 <div id="loading" class="loading hidden" role="alert"><div style="text-align:center"><div class="spinner" style="margin:auto"></div><p id="loading-msg">Memeriksa PIN…</p></div></div>
 
-<script src="assets/config.js?v=9"></script>
-<script src="assets/api.js?v=9"></script>
+<script src="assets/config.js?v=10"></script>
+<script src="assets/api.js?v=10"></script>
 <script>
 (function () {
   const $ = s => document.querySelector(s);
