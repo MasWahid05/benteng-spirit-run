@@ -228,7 +228,7 @@
   async function muat(pesan) {
     const d = await act(pesan || 'Mengambil data dari spreadsheet…', () => BSR.call('muat'));
     if (!d) return false;
-    S.set = d.pengaturan; S.reg = d.pendaftar || []; S.est = d.estafet || []; S.seri = d.seri || []; S.form = d.form;
+    S.set = d.pengaturan; S.reg = d.pendaftar || []; S.est = d.estafet || []; S.seri = d.seri || []; if (d.form) S.form = d.form;
     siapkan();
     $('#acara-nama').textContent = S.set.nama_acara;
     const sy = $('#sync');
@@ -896,7 +896,12 @@
 
   /* ---------- GOOGLE FORM ---------- */
   HAL.form = el => {
-    const F = S.form || { terhubung: [] };
+    if (!S.form) {
+      el.innerHTML = head('Google Form', 'Membaca form yang tersambung ke spreadsheet…') + '<div class="card"><div class="empty"><div class="spinner" style="margin:0 auto 10px"></div>Membaca Google Form… (±10 detik)</div></div>';
+      BSR.call('formInfo').then(r => { S.form = r; if ((location.hash || '').slice(1) === 'form') HAL.form(el); }).catch(e => { S.form = { terhubung: [], utamaError: e.message }; HAL.form(el); });
+      return;
+    }
+    const F = S.form;
     const linkDaftar = new URL('daftar.html', location.href).href;
     el.innerHTML = head('Google Form', 'Buat Google Form baru yang jawabannya langsung masuk ke spreadsheet ini, atau atur form yang sudah tersambung.', '<button class="btn" id="seg-form">' + ic('refresh') + 'Segarkan</button>') +
       '<div class="cols-2-1"><div class="stack"><div class="card"><div class="card-head"><h2>Form yang tersambung ke spreadsheet</h2></div>' +

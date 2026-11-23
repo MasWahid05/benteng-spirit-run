@@ -94,7 +94,6 @@ const ADMIN = {
     pendaftar: bacaPendaftar_(),
     estafet: bacaEstafet_(),
     seri: bacaSeri_(),
-    form: infoForm_(),
   }),
   pendaftar: () => bacaPendaftar_(),
   setValid: d => setValid_(d.ids || [d.id], !!d.valid),
